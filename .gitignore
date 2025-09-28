@@ -1,0 +1,7 @@
+compiler.xml
+jarRepositories.xml
+vcs.xml
+backend/.idea
+frontend/.idea
+frontend/node_modules
+backend/target

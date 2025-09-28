@@ -1,0 +1,56 @@
+# 开发环境配置
+spring:
+  # 邮箱配置
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: xxxxxx@qq.com
+    password: xxxxxxxxxxxxxx
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  # 多数据源配置
+  datasource:
+    dynamic:
+      datasource:
+        mysql:
+          url: jdbc:mysql://xxxxx:3306/hismsg?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+          username: root
+          password: xxxxxx
+          driver-class-name: com.mysql.cj.jdbc.Driver
+        clickhouse:
+          url: jdbc:clickhouse://xxxxxxx:18123/hismsg_message?compress=0&decompress=0
+          username: default
+          password: xxxxxx
+          driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
+
+  # Redis配置
+  data:
+    redis:
+      host: xxxxxxx
+      port: 6379
+      password: xxxxxxxx
+      database: 0
+      timeout: 10000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+
+# 消息推送平台配置
+message:
+  push:
+    # Bark推送配置
+    bark:
+      url: https://api.day.app
+# 日志配置
+logging:
+  level:
+    xyz.ersut.message: debug
+    com.clickhouse: info
+    com.baomidou.mybatisplus: info
