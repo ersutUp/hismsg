@@ -1,0 +1,56 @@
+# 开发环境配置
+spring:
+  # 邮箱配置
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  # 多数据源配置
+  datasource:
+    dynamic:
+      datasource:
+        mysql:
+          url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT:3306}/hismsg?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+          username: ${MYSQL_USERNAME:root}
+          password: ${MYSQL_PASSWORD:123456}
+          driver-class-name: com.mysql.cj.jdbc.Driver
+        clickhouse:
+          url: jdbc:clickhouse://${CLICKHOUSE_HOST}:${CLICKHOUSE_PORT:8123}/hismsg_message?compress=0&decompress=0
+          username: ${CLICKHOUSE_USERNAME:default}
+          password: ${CLICKHOUSE_PASSWORD:}
+          driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
+
+  # Redis配置
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: 0
+      timeout: 10000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+
+# 消息推送平台配置
+message:
+  push:
+    # Bark推送配置
+    bark:
+      url: https://api.day.app
+# 日志配置
+logging:
+  level:
+    xyz.ersut.message: debug
+    com.clickhouse: info
+    com.baomidou.mybatisplus: info

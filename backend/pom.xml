@@ -12,9 +12,9 @@
     </parent>
 
     <groupId>xyz.ersut</groupId>
-    <artifactId>message-system</artifactId>
+    <artifactId>hismsg</artifactId>
     <version>1.0.0</version>
-    <name>message-system</name>
+    <name>hismsg</name>
     <description>消息通知转发系统</description>
 
     <properties>
