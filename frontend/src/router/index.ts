@@ -43,6 +43,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '推送配置', icon: 'Setting' }
       },
       {
+        path: 'push-docs',
+        name: 'PushDocs',
+        component: () => import('@/views/PushDocs.vue'),
+        meta: { title: '接口文档', icon: 'Document' }
+      },
+      {
+        path: 'change-password',
+        name: 'ChangePassword',
+        component: () => import('@/views/ChangePassword.vue'),
+        meta: { title: '修改密码', icon: 'Lock' }
+      },
+      {
         path: 'dict-management',
         name: 'DictManagement',
         component: () => import('@/views/DictManagement.vue'),

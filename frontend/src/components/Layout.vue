@@ -73,6 +73,7 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="profile">个人资料</el-dropdown-item>
+                <el-dropdown-item command="changePassword">修改密码</el-dropdown-item>
                 <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -123,11 +124,15 @@ const menuItems = computed(() => {
   const items = [
     {
       path: '/dashboard',
-      meta: { title: '仪表板', icon: 'Dashboard' }
+      meta: { title: '仪表板', icon: 'Odometer' }
     },
     {
       path: '/messages',
       meta: { title: '消息记录', icon: 'ChatDotRound' }
+    },
+    {
+      path: '/push-docs',
+      meta: { title: '推送文档', icon: 'Document' }
     },
     {
       path: '/push-config',
@@ -156,6 +161,9 @@ const handleUserMenuCommand = async (command: string) => {
   switch (command) {
     case 'profile':
       ElMessage.info('个人资料功能暂未实现')
+      break
+    case 'changePassword':
+      router.push('/change-password')
       break
     case 'logout':
       try {

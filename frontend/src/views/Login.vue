@@ -47,10 +47,6 @@
           </el-button>
         </el-form-item>
       </el-form>
-      
-      <div class="login-footer">
-        <p>默认账户：admin / admin123</p>
-      </div>
     </div>
   </div>
 </template>
@@ -71,8 +67,8 @@ const loginFormRef = ref<FormInstance>()
 
 // 登录表单数据
 const loginForm = reactive<LoginRequest>({
-  username: 'admin',
-  password: 'admin123'
+  username: '',
+  password: ''
 })
 
 // 表单验证规则

@@ -35,6 +35,16 @@
                     </el-button>
                   </template>
                 </el-input>
+                <el-button 
+                  type="warning" 
+                  size="small" 
+                  @click="handleResetUserKey"
+                  class="reset-key-btn"
+                  :loading="resetKeyLoading"
+                >
+                  <el-icon><Refresh /></el-icon>
+                  {{ resetKeyLoading ? '重置中...' : '重置密钥' }}
+                </el-button>
               </div>
               <p class="key-desc">请妥善保管您的推送密钥，不要泄露给他人</p>
             </template>
@@ -294,8 +304,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/store/user'
+import { resetUserKey } from '@/api/auth'
 import {
   Star,
   Link,
@@ -303,10 +314,14 @@ import {
   DataLine,
   Bell,
   WarningFilled,
-  CopyDocument
+  CopyDocument,
+  Refresh
 } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
+
+// 响应式变量
+const resetKeyLoading = ref(false)
 
 // 基础URL
 const baseUrl = window.location.origin
@@ -473,17 +488,6 @@ const importantNotes = ref([
   }
 ])
 
-// 复制文本到剪贴板
-const copyText = async (text: string) => {
-  try {
-    await navigator.clipboard.writeText(text)
-    ElMessage.success('已复制到剪贴板')
-  } catch (error) {
-    console.error('复制失败:', error)
-    ElMessage.error('复制失败，请手动复制')
-  }
-}
-
 // 复制用户密钥
 const copyUserKey = async () => {
   if (!userStore.currentUser?.userKey) {
@@ -494,6 +498,51 @@ const copyUserKey = async () => {
   try {
     await navigator.clipboard.writeText(userStore.currentUser.userKey)
     ElMessage.success('用户密钥已复制到剪贴板')
+  } catch (error) {
+    console.error('复制失败:', error)
+    ElMessage.error('复制失败，请手动复制')
+  }
+}
+
+// 重置用户密钥
+const handleResetUserKey = async () => {
+  try {
+    await ElMessageBox.confirm(
+      '重置用户密钥后，之前使用的密钥将失效，需要重新配置推送服务。确定要重置吗？',
+      '确认重置用户密钥',
+      {
+        confirmButtonText: '确定重置',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    resetKeyLoading.value = true
+
+    // 调用重置密钥接口
+    const { data: newUserKey } = await resetUserKey()
+
+    // 更新用户store中的密钥
+    if (userStore.currentUser) {
+      userStore.updateUser({ userKey: newUserKey })
+    }
+
+    ElMessage.success('用户密钥重置成功')
+
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      ElMessage.error(error.message || '重置用户密钥失败')
+    }
+  } finally {
+    resetKeyLoading.value = false
+  }
+}
+
+// 复制文本到剪贴板
+const copyText = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    ElMessage.success('已复制到剪贴板')
   } catch (error) {
     console.error('复制失败:', error)
     ElMessage.error('复制失败，请手动复制')
@@ -536,6 +585,10 @@ onMounted(() => {
       .key-input {
         flex: 1;
         max-width: 500px;
+      }
+      
+      .reset-key-btn {
+        flex-shrink: 0;
       }
     }
     

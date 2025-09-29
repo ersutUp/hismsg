@@ -175,6 +175,18 @@
               <span class="info-label">最后登录：</span>
               <span class="info-value">{{ formatTime(new Date()) }}</span>
             </div>
+            <div class="info-item">
+              <el-button 
+                type="primary" 
+                size="small" 
+                text 
+                @click="$router.push('/change-password')"
+                class="change-password-btn"
+              >
+                <el-icon><Lock /></el-icon>
+                修改密码
+              </el-button>
+            </div>
           </div>
         </el-card>
       </el-col>
@@ -185,10 +197,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/store/user'
 import { getMessageStatistics, getMessageList } from '@/api/message'
 import { getPushConfigList } from '@/api/pushConfig'
+import { resetUserKey } from '@/api/auth'
 import type { MessageRecord } from '@/types/api'
 import {
   ChatDotRound,
@@ -199,7 +212,9 @@ import {
   Setting,
   View,
   Collection,
-  CopyDocument
+  CopyDocument,
+  Lock,
+  Refresh
 } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 
@@ -208,6 +223,7 @@ const userStore = useUserStore()
 
 // 响应式数据
 const loading = ref(false)
+const resetKeyLoading = ref(false)
 const statistics = ref<any>({})
 const recentMessages = ref<MessageRecord[]>([])
 const pushConfigCount = ref(0)
@@ -283,6 +299,40 @@ const copyUserKey = async () => {
   } catch (error) {
     console.error('复制失败:', error)
     ElMessage.error('复制失败，请手动复制')
+  }
+}
+
+// 重置用户密钥
+const handleResetUserKey = async () => {
+  try {
+    await ElMessageBox.confirm(
+      '重置用户密钥后，之前使用的密钥将失效，需要重新配置推送服务。确定要重置吗？',
+      '确认重置用户密钥',
+      {
+        confirmButtonText: '确定重置',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    resetKeyLoading.value = true
+
+    // 调用重置密钥接口
+    const { data: newUserKey } = await resetUserKey()
+
+    // 更新用户store中的密钥
+    if (userStore.currentUser) {
+      userStore.updateUser({ userKey: newUserKey })
+    }
+
+    ElMessage.success('用户密钥重置成功')
+
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      ElMessage.error(error.message || '重置用户密钥失败')
+    }
+  } finally {
+    resetKeyLoading.value = false
   }
 }
 
@@ -496,6 +546,24 @@ onMounted(() => {
               opacity: 1;
             }
           }
+        }
+        
+        .user-key-container {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 8px;
+          
+          .reset-key-btn {
+            align-self: stretch;
+            justify-content: center;
+          }
+        }
+        
+        .change-password-btn {
+          width: 100%;
+          justify-content: center;
+          margin-top: 8px;
         }
       }
     }

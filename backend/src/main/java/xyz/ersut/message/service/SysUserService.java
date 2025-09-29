@@ -75,4 +75,30 @@ public interface SysUserService {
      * @return 加密后的密码
      */
     String encodePassword(String rawPassword);
+    
+    /**
+     * 修改密码
+     * 
+     * @param username 用户名
+     * @param currentPassword 当前密码
+     * @param newPassword 新密码
+     * @return 修改结果
+     */
+    boolean changePassword(String username, String currentPassword, String newPassword);
+    
+    /**
+     * 重置用户密钥
+     * 
+     * @param username 用户名
+     * @return 新的用户密钥
+     */
+    String resetUserKey(String username);
+    
+    /**
+     * 检查用户密钥是否已存在
+     * 
+     * @param userKey 用户密钥
+     * @return 是否存在
+     */
+    boolean isUserKeyExists(String userKey);
 }
