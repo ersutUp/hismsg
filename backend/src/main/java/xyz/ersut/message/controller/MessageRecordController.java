@@ -1,5 +1,6 @@
 package xyz.ersut.message.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -42,17 +43,19 @@ public class MessageRecordController {
      * @param messageType 消息类型
      * @param startTime 开始时间
      * @param endTime 结束时间
+     * @param tags 消息标签
      * @param authentication 认证信息
      * @return 分页结果
      */
     @Operation(summary = "分页查询消息记录", description = "根据条件分页查询当前用户的消息记录")
     @GetMapping("/list")
-    public Result<Map<String, Object>> list(
+    public Result<Page<MessageRecord>> list(
             @Parameter(description = "页码", example = "1") @RequestParam(defaultValue = "1") int page,
             @Parameter(description = "页大小", example = "20") @RequestParam(defaultValue = "20") int size,
             @Parameter(description = "消息类型", example = "notification") @RequestParam(required = false) String messageType,
             @Parameter(description = "开始时间", example = "2024-01-01 00:00:00") @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
             @Parameter(description = "结束时间", example = "2024-12-31 23:59:59") @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime,
+            @Parameter(description = "消息标签", example = "urgent,system") @RequestParam(required = false) List<String> tags,
             @Parameter(hidden = true) Authentication authentication) {
         try {
             Long userId = getCurrentUserId(authentication);
@@ -63,22 +66,19 @@ public class MessageRecordController {
             int offset = (page - 1) * size;
             
             // 查询消息记录
-            List<MessageRecord> records = messageRecordService.getMessagesByCondition(
-                userId, messageType, startTime, endTime, offset, size);
+            Page<MessageRecord> pageRes = messageRecordService.getMessagesByCondition(
+                userId, messageType, startTime, endTime, tags, offset, size);
+//
+//            pageRes.get
+//            // 构建分页响应
+//            Map<String, Object> response = new HashMap<>();
+//            response.put("records", pageRes.getRecords());
+//            response.put("total", pageRes.getTotal());
+//            response.put("page", page);
+//            response.put("size", size);
+//            response.put("pages", pageRes.getPages());
             
-            // 统计总数
-            long total = messageRecordService.countMessagesByCondition(
-                userId, messageType, startTime, endTime);
-            
-            // 构建分页响应
-            Map<String, Object> response = new HashMap<>();
-            response.put("records", records);
-            response.put("total", total);
-            response.put("page", page);
-            response.put("size", size);
-            response.put("pages", (total + size - 1) / size);
-            
-            return Result.success(response);
+            return Result.success(pageRes);
         } catch (Exception e) {
             log.error("查询消息记录失败: {}", e.getMessage());
             return Result.error("查询失败");

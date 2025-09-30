@@ -1,5 +1,6 @@
 package xyz.ersut.message.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import xyz.ersut.message.entity.MessageRecord;
 import xyz.ersut.message.entity.PushRecord;
 
@@ -46,13 +47,14 @@ public interface MessageRecordService {
      * @param messageType 消息类型
      * @param startTime 开始时间
      * @param endTime 结束时间
+     * @param tags 消息标签列表
      * @param offset 偏移量
      * @param limit 限制数量
      * @return 消息记录列表
      */
-    List<MessageRecord> getMessagesByCondition(Long userId, String messageType, 
-                                             LocalDateTime startTime, LocalDateTime endTime, 
-                                             int offset, int limit);
+    Page<MessageRecord> getMessagesByCondition(Long userId, String messageType,
+                                               LocalDateTime startTime, LocalDateTime endTime,
+                                               List<String> tags, int offset, int limit);
     
     /**
      * 统计用户消息数量

@@ -2,8 +2,12 @@ package xyz.ersut.message.mapper;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.*;
 import xyz.ersut.message.entity.MessageRecord;
+
+import java.util.List;
 
 /**
  * 消息记录Mapper - ClickHouse
@@ -119,4 +123,42 @@ public interface MessageRecordMapper extends BaseMapper<MessageRecord> {
                            @Param("pushSuccessCount") Integer pushSuccessCount,
                            @Param("pushFailCount") Integer pushFailCount,
                            @Param("updateTime") java.time.LocalDateTime updateTime);
+    
+    /**
+     * 根据条件查询消息记录（带标签过滤）
+     */
+    @ResultMap("messageRecordResultMap")
+    @Select("""
+        <script>
+        SELECT * FROM message_record 
+        WHERE 1=1
+        <if test="userId != null">
+            AND user_id = #{userId}
+        </if>
+        <if test="messageType != null and messageType != ''">
+            AND message_type = #{messageType}
+        </if>
+        <if test="startTime != null">
+            AND create_time >= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND create_time &lt;= #{endTime}
+        </if>
+        <if test="tags != null and tags.size() > 0">
+            AND (
+            <foreach collection="tags" item="tag" separator=" or ">
+                arrayExists(x -> x LIKE concat('%',#{tag},'%'), tags)
+            </foreach>
+            )
+        </if>
+        ORDER BY create_time DESC
+        </script>
+        """)
+    List<MessageRecord> selectByConditionWithTags(
+            @Param("userId") Long userId,
+            @Param("messageType") String messageType,
+            @Param("startTime") java.time.LocalDateTime startTime,
+            @Param("endTime") java.time.LocalDateTime endTime,
+            @Param("tags") java.util.List<String> tags);
+
 }

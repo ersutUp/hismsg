@@ -76,6 +76,13 @@
             <artifactId>clickhouse-http-client</artifactId>
             <version>${clickhouse.version}</version>
         </dependency>
+        
+        <!-- PageHelper分页插件 -->
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+            <version>2.1.0</version>
+        </dependency>
         <!-- Apache HttpClient 5 for ClickHouse -->
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>

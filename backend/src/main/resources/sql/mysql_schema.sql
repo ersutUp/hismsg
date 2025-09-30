@@ -86,6 +86,7 @@ INSERT INTO `sys_dict_type` (`id`, `dict_name`, `dict_type`, `status`, `remark`,
 INSERT INTO `sys_dict_type` (`id`, `dict_name`, `dict_type`, `status`, `remark`, `create_time`, `update_time`, `deleted`) VALUES (2, '推送平台', 'push_platform', 1, '消息推送平台类型', '2025-09-17 06:53:06', '2025-09-17 06:53:06', 0);
 INSERT INTO `sys_dict_type` (`id`, `dict_name`, `dict_type`, `status`, `remark`, `create_time`, `update_time`, `deleted`) VALUES (3, '用户状态', 'user_status', 1, '用户账户状态', '2025-09-17 06:53:06', '2025-09-17 06:53:06', 0);
 INSERT INTO `sys_dict_type` (`id`, `dict_name`, `dict_type`, `status`, `remark`, `create_time`, `update_time`, `deleted`) VALUES (4, '系统状态', 'sys_status', 1, '系统通用状态', '2025-09-17 06:53:06', '2025-09-17 06:53:06', 0);
+INSERT INTO `sys_dict_type` (`id`, `dict_name`, `dict_type`, `status`, `remark`, `create_time`, `update_time`, `deleted`) VALUES (5, '消息级别', 'message_level', 1, '消息优先级分类', '2025-09-30 06:53:06', '2025-09-30 06:53:06', 0);
 COMMIT;
 
 -- ----------------------------
@@ -129,4 +130,32 @@ INSERT INTO `sys_dict_data` (`id`, `dict_type`, `dict_label`, `dict_value`, `dic
 INSERT INTO `sys_dict_data` (`id`, `dict_type`, `dict_label`, `dict_value`, `dict_sort`, `css_class`, `list_class`, `is_default`, `status`, `remark`, `create_time`, `update_time`, `deleted`) VALUES (11, 'sys_status', '正常', '1', 1, NULL, 'primary', 1, 1, NULL, '2025-09-17 06:53:06', '2025-09-17 06:53:06', 0);
 INSERT INTO `sys_dict_data` (`id`, `dict_type`, `dict_label`, `dict_value`, `dict_sort`, `css_class`, `list_class`, `is_default`, `status`, `remark`, `create_time`, `update_time`, `deleted`) VALUES (12, 'sys_status', '停用', '0', 2, NULL, 'info', 0, 1, NULL, '2025-09-17 06:53:06', '2025-09-17 06:53:06', 0);
 INSERT INTO `sys_dict_data` (`id`, `dict_type`, `dict_label`, `dict_value`, `dict_sort`, `css_class`, `list_class`, `is_default`, `status`, `remark`, `create_time`, `update_time`, `deleted`) VALUES (13, 'message_type', '短信', 'sms', 0, '', '', 0, 1, '', '2025-09-28 13:36:26', '2025-09-28 14:01:30', 1);
+INSERT INTO `sys_dict_data` (`id`, `dict_type`, `dict_label`, `dict_value`, `dict_sort`, `css_class`, `list_class`, `is_default`, `status`, `remark`, `create_time`, `update_time`, `deleted`) VALUES (14, 'message_level', '低', 'low', 1, NULL, 'info', 0, 1, '低优先级消息', '2025-09-30 06:53:06', '2025-09-30 06:53:06', 0);
+INSERT INTO `sys_dict_data` (`id`, `dict_type`, `dict_label`, `dict_value`, `dict_sort`, `css_class`, `list_class`, `is_default`, `status`, `remark`, `create_time`, `update_time`, `deleted`) VALUES (15, 'message_level', '普通', 'normal', 2, NULL, 'primary', 1, 1, '普通优先级消息', '2025-09-30 06:53:06', '2025-09-30 06:53:06', 0);
+INSERT INTO `sys_dict_data` (`id`, `dict_type`, `dict_label`, `dict_value`, `dict_sort`, `css_class`, `list_class`, `is_default`, `status`, `remark`, `create_time`, `update_time`, `deleted`) VALUES (16, 'message_level', '高', 'high', 3, NULL, 'warning', 0, 1, '高优先级消息', '2025-09-30 06:53:06', '2025-09-30 06:53:06', 0);
+INSERT INTO `sys_dict_data` (`id`, `dict_type`, `dict_label`, `dict_value`, `dict_sort`, `css_class`, `list_class`, `is_default`, `status`, `remark`, `create_time`, `update_time`, `deleted`) VALUES (17, 'message_level', '紧急', 'critical', 4, NULL, 'danger', 0, 1, '紧急优先级消息', '2025-09-30 06:53:06', '2025-09-30 06:53:06', 0);
 COMMIT;
+
+-- ----------------------------
+-- Table structure for tag_push_config
+-- ----------------------------
+DROP TABLE IF EXISTS `tag_push_config`;
+CREATE TABLE `tag_push_config` (
+                                   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+                                   `user_id` bigint NOT NULL COMMENT '用户ID',
+                                   `tag_name` varchar(50) NOT NULL COMMENT '标签名称',
+                                   `push_config_ids` json COMMENT '推送配置ID列表（JSON格式）',
+                                   `is_enabled` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否启用（1-启用，0-禁用）',
+                                   `remark` varchar(255) DEFAULT NULL COMMENT '备注说明',
+                                   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                                   `deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '逻辑删除（0-未删除，1-已删除）',
+                                   PRIMARY KEY (`id`),
+                                   KEY `idx_user_id` (`user_id`),
+                                   KEY `idx_tag_name` (`tag_name`),
+                                   KEY `idx_create_time` (`create_time`),
+                                   CONSTRAINT `fk_tag_push_config_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='标签推送配置表';
+
+SET FOREIGN_KEY_CHECKS = 1;
+

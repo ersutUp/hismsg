@@ -3,6 +3,7 @@ package xyz.ersut.message.service.impl;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -91,33 +92,21 @@ public class MessageRecordServiceImpl implements MessageRecordService {
     }
     
     @Override
-    public List<MessageRecord> getMessagesByCondition(Long userId, String messageType, 
-                                                     LocalDateTime startTime, LocalDateTime endTime, 
-                                                     int offset, int limit) {
+    public Page<MessageRecord> getMessagesByCondition(Long userId, String messageType,
+                                                                            LocalDateTime startTime, LocalDateTime endTime,
+                                                                            List<String> tags, int offset, int limit) {
         try {
-            QueryWrapper<MessageRecord> queryWrapper = new QueryWrapper<>();
-            
-            if (userId != null) {
-                queryWrapper.eq("user_id", userId);
-            }
-            if (messageType != null && !messageType.trim().isEmpty()) {
-                queryWrapper.eq("message_type", messageType);
-            }
-            if (startTime != null) {
-                queryWrapper.ge("create_time", startTime.truncatedTo(ChronoUnit.SECONDS));
-            }
-            if (endTime != null) {
-                queryWrapper.le("create_time", endTime.truncatedTo(ChronoUnit.SECONDS));
-            }
-            
-            queryWrapper.orderByDesc("create_time");
-            
-            Page<MessageRecord> page = new Page<>((offset / limit) + 1, limit);
-            Page<MessageRecord> result = messageRecordMapper.selectPage(page, queryWrapper);
-            return result.getRecords();
+            PageHelper.startPage(offset / limit + 1, limit);
+            com.github.pagehelper.Page<MessageRecord> page = (com.github.pagehelper.Page<MessageRecord>)messageRecordMapper.selectByConditionWithTags(userId, messageType, startTime, endTime, tags);
+
+            Page<MessageRecord> resultPage = new Page<>(page.getPageNum(), page.getPageSize());
+            resultPage.setRecords(page.getResult());
+            resultPage.setTotal(page.getTotal());
+            resultPage.setPages(page.getPages());
+            return resultPage;
         } catch (Exception e) {
             log.error("根据条件查询消息记录失败: {}", e.getMessage(), e);
-            return new ArrayList<>();
+            return null;
         }
     }
     
@@ -146,7 +135,7 @@ public class MessageRecordServiceImpl implements MessageRecordService {
             return 0;
         }
     }
-    
+
     @Override
     public boolean updateMessagePushStatus(Long messageId, String platform, boolean success) {
         if (messageId == null) {

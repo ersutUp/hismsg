@@ -43,6 +43,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '推送配置', icon: 'Setting' }
       },
       {
+        path: 'tag-push-config',
+        name: 'TagPushConfig',
+        component: () => import('@/views/TagPushConfig.vue'),
+        meta: { title: '标签配置', icon: 'PriceTag' }
+      },
+      {
         path: 'push-docs',
         name: 'PushDocs',
         component: () => import('@/views/PushDocs.vue'),

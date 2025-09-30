@@ -13,14 +13,17 @@ import xyz.ersut.message.entity.MessageRecord;
 import xyz.ersut.message.entity.PushRecord;
 import xyz.ersut.message.entity.SysUser;
 import xyz.ersut.message.entity.UserPushConfig;
+import xyz.ersut.message.entity.TagPushConfig;
 import xyz.ersut.message.service.*;
 import xyz.ersut.message.service.push.PushServiceManager;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * 消息转发服务实现类
@@ -36,6 +39,7 @@ public class MessageForwardServiceImpl implements MessageForwardService {
     private final MessageRecordService messageRecordService;
     private final UserPushConfigService userPushConfigService;
     private final SysUserService userService;
+    private final TagPushConfigService tagPushConfigService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final PushServiceManager pushServiceManager;
     
@@ -100,6 +104,9 @@ public class MessageForwardServiceImpl implements MessageForwardService {
                 return;
             }
             
+            // 基于标签过滤推送配置
+            configs = filterConfigsByTags(messageRecord, configs);
+            
             // 如果指定了推送平台，则只推送指定的平台
             if (messageRecord.getPushedPlatforms() != null && !messageRecord.getPushedPlatforms().isEmpty()) {
                 configs = configs.stream()
@@ -117,8 +124,8 @@ public class MessageForwardServiceImpl implements MessageForwardService {
 
                     // 更新推送成功计数和平台列表
                     if (pushRecord.getPushStatus() == 1) {
-                        log.info("推送到平台{}成功: messageId={}, configName={}",
-                                config.getPlatform(), messageRecord.getId(), config.getConfigName());
+                        log.info("推送到平台{}成功: messageId={}, configName={}, tags={}",
+                                config.getPlatform(), messageRecord.getId(), config.getConfigName(), messageRecord.getTags());
                         updatePushSuccess(messageRecord, config.getPlatform());
                     } else {
                         log.warn("推送到平台{}失败: messageId={}, configName={}",
@@ -291,5 +298,46 @@ public class MessageForwardServiceImpl implements MessageForwardService {
         } catch (Exception e) {
             log.error("加入重试队列失败: {}", e.getMessage(), e);
         }
+    }
+    
+    /**
+     * 基于标签过滤推送配置
+     * 
+     * @param messageRecord 消息记录
+     * @param configs 原始推送配置列表
+     * @return 过滤后的推送配置列表
+     */
+    private List<UserPushConfig> filterConfigsByTags(MessageRecord messageRecord, List<UserPushConfig> configs) {
+        // 如果消息没有标签，返回所有配置
+        if (messageRecord.getTags() == null || messageRecord.getTags().isEmpty()) {
+            return configs;
+        }
+        
+        // 获取用户的标签推送配置
+        List<TagPushConfig> tagConfigs = tagPushConfigService.getEnabledByUserId(messageRecord.getUserId());
+        if (tagConfigs == null || tagConfigs.isEmpty()) {
+            // 没有标签配置，返回所有推送配置
+            return configs;
+        }
+        
+        // 检查消息标签是否匹配任何标签配置，收集允许的推送配置ID
+        Set<Long> allowedConfigIds = new HashSet<>();
+        for (String tag : messageRecord.getTags()) {
+            for (TagPushConfig tagConfig : tagConfigs) {
+                if (tag.equals(tagConfig.getTagName()) && tagConfig.getPushConfigIds() != null) {
+                    allowedConfigIds.addAll(tagConfig.getPushConfigIds());
+                }
+            }
+        }
+        
+        // 如果没有匹配的标签配置，使用所有推送配置
+        if (allowedConfigIds.isEmpty()) {
+            return configs;
+        }
+        
+        // 过滤推送配置，只保留标签配置中指定的配置ID
+        return configs.stream()
+            .filter(config -> allowedConfigIds.contains(config.getId()))
+            .toList();
     }
 }

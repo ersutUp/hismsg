@@ -101,7 +101,10 @@ import {
   User,
   ArrowDown,
   Fold,
-  Expand
+  Expand,
+  Document,
+  Odometer,
+  PriceTag
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -137,6 +140,10 @@ const menuItems = computed(() => {
     {
       path: '/push-config',
       meta: { title: '推送配置', icon: 'Setting' }
+    },
+    {
+      path: '/tag-push-config',
+      meta: { title: '标签配置', icon: 'PriceTag' }
     }
   ]
   

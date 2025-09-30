@@ -42,6 +42,23 @@
           />
         </el-form-item>
         
+        <el-form-item label="消息标签">
+          <el-select
+            v-model="searchForm.tags"
+            placeholder="请选择标签"
+            clearable
+            multiple
+            style="width: 200px"
+          >
+            <el-option
+              v-for="tag in tagOptions"
+              :key="tag"
+              :label="tag"
+              :value="tag"
+            />
+          </el-select>
+        </el-form-item>
+        
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="handleSearch">
             查询
@@ -113,6 +130,23 @@
             >
               {{ getLevelText(row.level) }}
             </el-tag>
+          </template>
+        </el-table-column>
+        
+        <el-table-column label="消息标签" width="150">
+          <template #default="{ row }">
+            <div class="message-tags">
+              <el-tag
+                v-for="tag in row.tags || []"
+                :key="tag"
+                size="small"
+                type="info"
+                class="tag-item"
+              >
+                {{ tag }}
+              </el-tag>
+              <span v-if="!row.tags || row.tags.length === 0" class="no-tags">无标签</span>
+            </div>
           </template>
         </el-table-column>
         
@@ -298,6 +332,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getMessageList, getMessageDetail, getMessagePushRecords } from '@/api/message'
 import { getDictDataByType } from '@/api/dict'
+import { getTagNames } from '@/api/tagPushConfig'
 import type { MessageRecord, PushRecord, DictData } from '@/types/api'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
@@ -315,11 +350,13 @@ const detailDialogVisible = ref(false)
 // 字典数据
 const messageTypeOptions = ref<DictData[]>([])
 const messageLevelOptions = ref<DictData[]>([])
+const tagOptions = ref<string[]>([])
 
 // 搜索表单
 const searchForm = reactive({
   messageType: '',
-  timeRange: [] as string[]
+  timeRange: [] as string[],
+  tags: [] as string[]
 })
 
 // 分页信息
@@ -343,6 +380,16 @@ const fetchDictData = async () => {
   }
 }
 
+// 获取标签选项
+const fetchTagOptions = async () => {
+  try {
+    const { data } = await getTagNames()
+    tagOptions.value = data || []
+  } catch (error) {
+    console.error('获取标签选项失败:', error)
+  }
+}
+
 // 获取消息列表
 const fetchMessageList = async () => {
   loading.value = true
@@ -359,6 +406,10 @@ const fetchMessageList = async () => {
     if (searchForm.timeRange?.length === 2) {
       params.startTime = searchForm.timeRange[0]
       params.endTime = searchForm.timeRange[1]
+    }
+    
+    if (searchForm.tags?.length > 0) {
+      params.tags = searchForm.tags.join(',')
     }
     
     const { data } = await getMessageList(params)
@@ -382,6 +433,7 @@ const handleSearch = () => {
 const handleReset = () => {
   searchForm.messageType = ''
   searchForm.timeRange = []
+  searchForm.tags = []
   pagination.page = 1
   fetchMessageList()
 }
@@ -493,6 +545,9 @@ onMounted(() => {
   // 获取字典数据
   fetchDictData()
   
+  // 获取标签选项
+  fetchTagOptions()
+  
   // 如果URL中有消息ID，直接显示详情
   const messageId = route.query.id
   if (messageId) {
@@ -544,6 +599,23 @@ onMounted(() => {
 .message-content {
   color: #666;
   line-height: 1.4;
+}
+
+.message-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  
+  .tag-item {
+    margin: 0;
+  }
+  
+  .no-tags {
+    color: #999;
+    font-size: 12px;
+    font-style: italic;
+  }
 }
 
 .push-status {
