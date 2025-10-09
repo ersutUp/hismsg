@@ -14,6 +14,7 @@ import xyz.ersut.message.entity.PushRecord;
 import xyz.ersut.message.entity.SysUser;
 import xyz.ersut.message.entity.UserPushConfig;
 import xyz.ersut.message.entity.TagPushConfig;
+import xyz.ersut.message.processor.SmsMessageProcessor;
 import xyz.ersut.message.service.*;
 import xyz.ersut.message.service.push.PushServiceManager;
 
@@ -40,6 +41,7 @@ public class MessageForwardServiceImpl implements MessageForwardService {
     private final UserPushConfigService userPushConfigService;
     private final SysUserService userService;
     private final TagPushConfigService tagPushConfigService;
+    private final SmsMessageProcessor smsMessageProcessor;
     private final RedisTemplate<String, Object> redisTemplate;
     private final PushServiceManager pushServiceManager;
     
@@ -70,6 +72,19 @@ public class MessageForwardServiceImpl implements MessageForwardService {
         
         // 构建消息记录
         MessageRecord messageRecord = buildMessageRecord(pushRequest, user);
+        
+        // 如果消息包含"短信"标签，则处理短信内容
+        if (messageRecord.getTags() != null && (!messageRecord.getTags().stream().filter(item -> item.contains("短信")).toList().isEmpty())) {
+            String simCode = smsMessageProcessor.processSmsMessage(messageRecord.getContent());
+
+            if (StrUtil.isBlank(messageRecord.getSubtitle())) {
+                messageRecord.setSubtitle(simCode);
+            } else {
+                messageRecord.setContent(simCode + messageRecord.getContent());
+            }
+
+            log.debug("短信消息内容已处理: {}", simCode);
+        }
         
         // 保存消息记录到ClickHouse
         boolean saved = messageRecordService.saveMessageRecord(messageRecord);
