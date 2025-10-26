@@ -66,19 +66,4 @@ public class RedisConfig {
 
         return container;
     }
-
-    /**
-     * 异步任务执行器
-     */
-    @Bean(name = "taskExecutor")
-    public Executor taskExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(20);
-        executor.setQueueCapacity(200);
-        executor.setThreadNamePrefix("MessagePush-");
-        executor.setKeepAliveSeconds(60);
-        executor.initialize();
-        return executor;
-    }
 }

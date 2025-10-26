@@ -49,6 +49,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '标签配置', icon: 'PriceTag' }
       },
       {
+        path: 'scheduled-tasks',
+        name: 'ScheduledTasks',
+        component: () => import('@/views/ScheduledTasks.vue'),
+        meta: { title: '定时任务', icon: 'AlarmClock' }
+      },
+      {
         path: 'push-docs',
         name: 'PushDocs',
         component: () => import('@/views/PushDocs.vue'),

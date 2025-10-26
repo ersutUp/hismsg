@@ -1,5 +1,6 @@
 package xyz.ersut.message.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -69,8 +70,9 @@ public class MessageRecord {
     private String level;
     
     /**
-     * 消息标签
+     * 消息标签（ClickHouse Array类型）
      */
+    @TableField(typeHandler = xyz.ersut.message.typehandler.StringListTypeHandler.class)
     private List<String> tags;
     
     /**
@@ -84,8 +86,9 @@ public class MessageRecord {
     private Integer status;
     
     /**
-     * 已推送的平台列表
+     * 已推送的平台列表（ClickHouse Array类型）
      */
+    @TableField(typeHandler = xyz.ersut.message.typehandler.StringListTypeHandler.class)
     private List<String> pushedPlatforms;
     
     /**

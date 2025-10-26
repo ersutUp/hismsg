@@ -144,6 +144,10 @@ const menuItems = computed(() => {
     {
       path: '/tag-push-config',
       meta: { title: '标签配置', icon: 'PriceTag' }
+    },
+    {
+      path: '/scheduled-tasks',
+      meta: { title: '定时任务', icon: 'Timer' }
     }
   ]
   
