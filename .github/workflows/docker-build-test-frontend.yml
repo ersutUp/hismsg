@@ -1,4 +1,4 @@
-name: Docker build image frontend
+name: Docker build test image frontend
 
 # Configures this workflow to run every time a change is pushed to the branch called `release`.
 on:
