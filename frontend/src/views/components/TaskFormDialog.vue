@@ -112,7 +112,7 @@
                   <el-checkbox label="4">周四</el-checkbox>
                   <el-checkbox label="5">周五</el-checkbox>
                   <el-checkbox label="6">周六</el-checkbox>
-                  <el-checkbox label="0">周日</el-checkbox>
+                  <el-checkbox label="7">周日</el-checkbox>
                 </el-checkbox-group>
               </el-form-item>
             </el-col>
@@ -141,7 +141,7 @@
                   <el-option label="周四" value="4" />
                   <el-option label="周五" value="5" />
                   <el-option label="周六" value="6" />
-                  <el-option label="周日" value="0" />
+                  <el-option label="周日" value="7" />
                 </el-select>
               </el-form-item>
             </el-col>
