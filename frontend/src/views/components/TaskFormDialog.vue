@@ -106,13 +106,13 @@
             <el-col :span="12">
               <el-form-item label="工作日限制">
                 <el-checkbox-group v-model="form.weekdays">
-                  <el-checkbox label="1">周一</el-checkbox>
-                  <el-checkbox label="2">周二</el-checkbox>
-                  <el-checkbox label="3">周三</el-checkbox>
-                  <el-checkbox label="4">周四</el-checkbox>
-                  <el-checkbox label="5">周五</el-checkbox>
-                  <el-checkbox label="6">周六</el-checkbox>
-                  <el-checkbox label="7">周日</el-checkbox>
+                  <el-checkbox label="2">周一</el-checkbox>
+                  <el-checkbox label="3">周二</el-checkbox>
+                  <el-checkbox label="4">周三</el-checkbox>
+                  <el-checkbox label="5">周四</el-checkbox>
+                  <el-checkbox label="6">周五</el-checkbox>
+                  <el-checkbox label="7">周六</el-checkbox>
+                  <el-checkbox label="1">周日</el-checkbox>
                 </el-checkbox-group>
               </el-form-item>
             </el-col>
@@ -135,13 +135,13 @@
             <el-col :span="12">
               <el-form-item label="星期几" prop="dayOfWeek">
                 <el-select v-model="form.dayOfWeek" placeholder="选择星期几">
-                  <el-option label="周一" value="1" />
-                  <el-option label="周二" value="2" />
-                  <el-option label="周三" value="3" />
-                  <el-option label="周四" value="4" />
-                  <el-option label="周五" value="5" />
-                  <el-option label="周六" value="6" />
-                  <el-option label="周日" value="7" />
+                  <el-option label="周一" value="2" />
+                  <el-option label="周二" value="3" />
+                  <el-option label="周三" value="4" />
+                  <el-option label="周四" value="5" />
+                  <el-option label="周五" value="6" />
+                  <el-option label="周六" value="7" />
+                  <el-option label="周日" value="1" />
                 </el-select>
               </el-form-item>
             </el-col>
@@ -277,6 +277,8 @@ const emit = defineEmits(['update:modelValue', 'success'])
 const formRef = ref()
 const submitLoading = ref(false)
 const cronPreview = ref(null)
+
+const availableTags = ref(['重要', '工作', '生活', '健康', '学习', '娱乐'])
 
 const form = reactive({
   taskName: '',
