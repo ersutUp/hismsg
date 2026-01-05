@@ -1,9 +1,16 @@
 <template>
   <el-container class="layout-container">
+    <!-- 移动端遮罩层 -->
+    <div
+      v-if="isMobile && mobileMenuVisible"
+      class="mobile-overlay"
+      @click="closeMobileMenu"
+    ></div>
+
     <!-- 侧边栏 -->
     <el-aside
       :width="isCollapse ? '64px' : '240px'"
-      class="layout-aside"
+      :class="['layout-aside', { 'mobile-hidden': isMobile && !mobileMenuVisible }]"
     >
       <div class="logo">
         <el-icon v-if="isCollapse" class="logo-icon">
@@ -16,12 +23,13 @@
           <span class="logo-text">HisMsg</span>
         </div>
       </div>
-      
+
       <el-menu
         :default-active="currentRoute"
         :collapse="isCollapse"
         router
         class="layout-menu"
+        @select="closeMobileMenu"
       >
         <el-menu-item
           v-for="item in menuItems"
@@ -90,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
 import {
@@ -111,8 +119,17 @@ const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 
-// 侧边栏折叠状态
+// 检测是否为移动端
+const isMobile = ref(false)
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 768
+}
+
+// 侧边栏折叠状态（移动端默认折叠）
 const isCollapse = ref(false)
+
+// 移动端侧边栏显示状态
+const mobileMenuVisible = ref(false)
 
 // 当前路由
 const currentRoute = computed(() => route.path)
@@ -164,8 +181,31 @@ const menuItems = computed(() => {
 
 // 切换侧边栏折叠
 const toggleCollapse = () => {
-  isCollapse.value = !isCollapse.value
+  if (isMobile.value) {
+    // 移动端切换菜单显示/隐藏
+    mobileMenuVisible.value = !mobileMenuVisible.value
+  } else {
+    // PC端切换折叠/展开
+    isCollapse.value = !isCollapse.value
+  }
 }
+
+// 关闭移动端菜单
+const closeMobileMenu = () => {
+  if (isMobile.value) {
+    mobileMenuVisible.value = false
+  }
+}
+
+// 生命周期钩子
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+})
 
 // 处理用户菜单命令
 const handleUserMenuCommand = async (command: string) => {
@@ -304,28 +344,59 @@ const handleUserMenuCommand = async (command: string) => {
   overflow-y: auto;
 }
 
+// 移动端遮罩层
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  transition: opacity 0.3s ease;
+}
+
 // 响应式设计
 @media (max-width: 768px) {
   .layout-aside {
     position: fixed;
     z-index: 1000;
     height: 100vh;
-  }
-  
-  .layout-main {
-    margin-left: 0;
-  }
-  
-  .layout-header {
-    padding: 0 16px;
-    
-    .header-left {
-      gap: 12px;
+    transition: transform 0.3s ease;
+
+    &.mobile-hidden {
+      transform: translateX(-100%);
     }
-    
+  }
+
+  .layout-main {
+    width: 100%;
+    margin-left: 0 !important;
+  }
+
+  .layout-header {
+    padding: 0 12px;
+    height: 56px;
+
+    .header-left {
+      gap: 8px;
+
+      .el-breadcrumb {
+        font-size: 14px;
+      }
+    }
+
     .username {
       display: none;
     }
+
+    .dropdown-icon {
+      display: none;
+    }
+  }
+
+  .layout-content {
+    padding: 12px;
   }
 }
 

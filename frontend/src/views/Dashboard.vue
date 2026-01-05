@@ -573,30 +573,48 @@ onMounted(() => {
 // 响应式设计
 @media (max-width: 768px) {
   .stats-cards {
+    .el-col {
+      margin-bottom: 16px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
     .stat-card {
       padding: 16px;
-      
+
       .stat-icon {
         width: 48px;
         height: 48px;
         font-size: 20px;
       }
-      
+
       .stat-value {
         font-size: 24px;
       }
     }
   }
-  
+
+  .main-content {
+    .el-col {
+      margin-bottom: 16px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
   .message-item {
     .message-left {
       gap: 8px;
-      
+
       .message-info {
         .message-title {
           font-size: 14px;
         }
-        
+
         .message-content {
           font-size: 12px;
         }
