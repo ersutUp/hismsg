@@ -2,7 +2,7 @@
   <el-dialog
     v-model="visible"
     :title="isEdit ? '编辑任务' : '创建任务'"
-    width="800px"
+    :width="isMobile ? '95%' : '800px'"
     :before-close="handleClose"
   >
     <el-form
@@ -11,7 +11,7 @@
       :rules="rules"
       label-width="100px"
     >
-      <el-row :gutter="20">
+      <el-row>
         <el-col :span="12">
           <el-form-item label="任务名称" prop="taskName">
             <el-input v-model="form.taskName" placeholder="请输入任务名称" />
@@ -39,7 +39,7 @@
         />
       </el-form-item>
 
-      <el-row :gutter="20">
+      <el-row>
         <el-col :span="12">
           <el-form-item label="通知标题" prop="messageTitle">
             <el-input v-model="form.messageTitle" placeholder="请输入通知标题" />
@@ -269,6 +269,11 @@ import api from '@/utils/request'
 const props = defineProps({
   modelValue: Boolean,
   task: Object
+})
+
+// 检测是否为移动端
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
 })
 
 const emit = defineEmits(['update:modelValue', 'success'])
@@ -590,5 +595,72 @@ const handleClose = () => {
 
 .form-help small {
   color: #909399;
+}
+
+/* 移动端响应式 - scoped 样式 */
+@media (max-width: 768px) {
+  :deep(.el-form-item) {
+    margin-bottom: 16px;
+  }
+
+  :deep(.el-form-item__label) {
+    font-size: 14px;
+  }
+
+  :deep(.el-row) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  :deep(.el-col) {
+    max-width: 100%;
+    margin-bottom: 0;
+  }
+
+  :deep(.el-input),
+  :deep(.el-select),
+  :deep(.el-date-picker),
+  :deep(.el-time-picker),
+  :deep(.el-input-number) {
+    width: 100%;
+  }
+
+  :deep(.el-checkbox-group) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  :deep(.el-checkbox) {
+    margin-right: 0;
+  }
+
+  .schedule-config {
+    margin: 10px 0;
+  }
+}
+</style>
+
+<!-- 移动端弹窗样式 - 不能 scoped，因为弹窗是 teleport 到 body 的 -->
+<style lang="scss">
+@media (max-width: 768px) {
+  .el-dialog {
+    max-height: 90vh;
+    margin: 0 !important;
+    display: flex;
+    flex-direction: column; 
+
+    .el-dialog__body {
+      max-height: calc(90vh - 120px);
+      overflow-y: auto;
+      padding: 4px !important;;
+    }
+  }
+
+  .el-overlay-dialog {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
 }
 </style>

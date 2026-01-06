@@ -104,14 +104,14 @@
     <el-dialog
       v-model="dialogVisible"
       :title="isEdit ? '编辑标签配置' : '新增标签配置'"
-      width="600px"
+      :width="isMobile ? '95%' : '600px'"
       :before-close="closeDialog"
     >
       <el-form
         ref="formRef"
         :model="formData"
         :rules="formRules"
-        label-width="100px"
+        :label-width="isMobile ? '80px' : '100px'"
       >
         <el-form-item label="标签名称" prop="tagName">
           <el-input
@@ -204,6 +204,11 @@ import {
   type UserPushConfig
 } from '@/api/tagPushConfig'
 import dayjs from 'dayjs'
+
+// 检测是否为移动端
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
+})
 
 // 响应式数据
 const loading = ref(false)
@@ -433,10 +438,46 @@ onMounted(() => {
     gap: 12px;
     align-items: stretch;
   }
-  
-  .el-dialog {
-    width: 95% !important;
-    margin: 0 auto;
+
+  :deep(.el-dialog) {
+    max-height: 90vh;
+    margin: 0 !important;
+    display: flex;
+    flex-direction: column;
+
+    .el-dialog__body {
+      max-height: calc(90vh - 120px);
+      overflow-y: auto;
+      padding: 4px !important;;
+    }
+  }
+
+  :deep(.el-overlay-dialog) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  :deep(.el-form) {
+    .el-form-item {
+      margin-bottom: 16px;
+
+      .el-form-item__label {
+        font-size: 14px;
+        padding-right: 8px;
+      }
+
+      .el-input,
+      .el-select {
+        width: 100%;
+      }
+
+      .el-textarea {
+        .el-textarea__inner {
+          font-size: 14px;
+        }
+      }
+    }
   }
 }
 </style>

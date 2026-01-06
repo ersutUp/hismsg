@@ -217,7 +217,7 @@
     <el-dialog
       v-model="typeDialogVisible"
       :title="typeDialogTitle"
-      width="500px"
+      :width="isMobile ? '95%' : '500px'"
       :before-close="closeTypeDialog"
     >
       <el-form
@@ -268,7 +268,7 @@
     <el-dialog
       v-model="dataDialogVisible"
       :title="dataDialogTitle"
-      width="500px"
+      :width="isMobile ? '95%' : '500px'"
       :before-close="closeDataDialog"
     >
       <el-form
@@ -358,6 +358,11 @@ import {
 } from '@/api/dict'
 import type { DictType, DictData } from '@/types/api'
 import { Plus, Search } from '@element-plus/icons-vue'
+
+// 检测是否为移动端
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
+})
 
 // 响应式数据
 const typeLoading = ref(false)
@@ -718,13 +723,50 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
-  .el-dialog {
-    width: 95% !important;
-    margin: 0 auto;
-  }
-  
   .el-table {
     font-size: 12px;
+  }
+
+  :deep(.el-dialog) {
+    max-height: 90vh;
+    margin: 0 !important;
+    display: flex;
+    flex-direction: column;
+
+    .el-dialog__body {
+      max-height: calc(90vh - 120px);
+      overflow-y: auto;
+      padding: 4px !important;;
+    }
+  }
+
+  :deep(.el-overlay-dialog) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  :deep(.el-form) {
+    .el-form-item {
+      margin-bottom: 16px;
+
+      .el-form-item__label {
+        font-size: 14px;
+        padding-right: 8px;
+      }
+
+      .el-input,
+      .el-select,
+      .el-input-number {
+        width: 100%;
+      }
+
+      .el-textarea {
+        .el-textarea__inner {
+          font-size: 14px;
+        }
+      }
+    }
   }
 }
 </style>

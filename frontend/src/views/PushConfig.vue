@@ -124,14 +124,14 @@
     <el-dialog
       v-model="dialogVisible"
       :title="dialogTitle"
-      width="600px"
+      :width="isMobile ? '95%' : '600px'"
       :before-close="closeDialog"
     >
       <el-form
         ref="configFormRef"
         :model="configForm"
         :rules="configRules"
-        label-width="100px"
+        :label-width="isMobile ? '80px' : '100px'"
       >
         <el-form-item label="推送平台" prop="platform">
           <el-select
@@ -313,7 +313,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import {
   getPushConfigList,
@@ -333,6 +333,11 @@ import {
   ChatDotSquare,
   Notification
 } from '@element-plus/icons-vue'
+
+// 检测是否为移动端
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
+})
 
 // 响应式数据
 const loading = ref(false)
@@ -636,18 +641,61 @@ onMounted(() => {
     gap: 12px;
     align-items: stretch;
   }
-  
-  .el-dialog {
-    width: 95% !important;
-    margin: 0 auto;
-  }
-  
+
   .el-table {
     font-size: 12px;
-    
-    .el-table-column {
-      &:nth-child(n+4) {
-        display: none;
+
+    :deep(.el-table__header-wrapper) {
+      .el-table__cell {
+        padding: 8px 0;
+      }
+    }
+
+    :deep(.el-table__body-wrapper) {
+      .el-table__cell {
+        padding: 8px 0;
+      }
+    }
+  }
+
+  :deep(.el-dialog) {
+    max-height: 90vh;
+    margin: 0 !important;
+    display: flex;
+    flex-direction: column;
+
+    .el-dialog__body {
+      max-height: calc(90vh - 120px);
+      overflow-y: auto;
+      padding: 4px !important;;
+    }
+  }
+
+  :deep(.el-overlay-dialog) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  :deep(.el-form) {
+    .el-form-item {
+      margin-bottom: 16px;
+
+      .el-form-item__label {
+        font-size: 14px;
+        padding-right: 8px;
+      }
+
+      .el-input,
+      .el-select,
+      .el-input-number {
+        width: 100%;
+      }
+
+      .el-textarea {
+        .el-textarea__inner {
+          font-size: 14px;
+        }
       }
     }
   }

@@ -7,7 +7,7 @@
     
     <!-- 统计卡片 -->
     <el-row :gutter="20" class="stats-cards">
-      <el-col :xs="24" :sm="12" :lg="6">
+      <el-col :xs="12" :sm="12" :lg="6">
         <div class="stat-card">
           <div class="stat-icon success">
             <el-icon><ChatDotRound /></el-icon>
@@ -18,8 +18,8 @@
           </div>
         </div>
       </el-col>
-      
-      <el-col :xs="24" :sm="12" :lg="6">
+
+      <el-col :xs="12" :sm="12" :lg="6">
         <div class="stat-card">
           <div class="stat-icon primary">
             <el-icon><Bell /></el-icon>
@@ -30,8 +30,8 @@
           </div>
         </div>
       </el-col>
-      
-      <el-col :xs="24" :sm="12" :lg="6">
+
+      <el-col :xs="12" :sm="12" :lg="6">
         <div class="stat-card">
           <div class="stat-icon warning">
             <el-icon><Warning /></el-icon>
@@ -42,8 +42,8 @@
           </div>
         </div>
       </el-col>
-      
-      <el-col :xs="24" :sm="12" :lg="6">
+
+      <el-col :xs="12" :sm="12" :lg="6">
         <div class="stat-card">
           <div class="stat-icon info">
             <el-icon><Tools /></el-icon>
@@ -574,7 +574,7 @@ onMounted(() => {
 @media (max-width: 768px) {
   .stats-cards {
     .el-col {
-      margin-bottom: 16px;
+      margin-bottom: 12px;
 
       &:last-child {
         margin-bottom: 0;
@@ -582,16 +582,25 @@ onMounted(() => {
     }
 
     .stat-card {
-      padding: 16px;
+      padding: 12px;
+      flex-direction: column;
+      text-align: center;
+      gap: 8px;
 
       .stat-icon {
-        width: 48px;
-        height: 48px;
-        font-size: 20px;
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
       }
 
-      .stat-value {
-        font-size: 24px;
+      .stat-content {
+        .stat-value {
+          font-size: 20px;
+        }
+
+        .stat-label {
+          font-size: 12px;
+        }
       }
     }
   }

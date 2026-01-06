@@ -223,7 +223,6 @@
       v-model="detailDialogVisible"
       title="消息详情"
       :width="isMobile ? '95%' : '800px'"
-      :fullscreen="isMobile"
       :before-close="closeDetailDialog"
     >
       <div v-if="selectedMessage" class="message-detail">
@@ -838,6 +837,25 @@ onMounted(() => {
         margin-top: 8px;
       }
     }
+  }
+
+  :deep(.el-dialog) {
+    max-height: 90vh;
+    margin: 0 !important;
+    display: flex;
+    flex-direction: column;
+
+    .el-dialog__body {
+      max-height: calc(90vh - 120px);
+      overflow-y: auto;
+      padding: 4px !important;;
+    }
+  }
+
+  :deep(.el-overlay-dialog) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
 }
 </style>

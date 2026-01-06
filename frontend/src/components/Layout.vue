@@ -396,7 +396,7 @@ const handleUserMenuCommand = async (command: string) => {
   }
 
   .layout-content {
-    padding: 12px;
+    padding: 8px;
   }
 }
 

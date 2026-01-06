@@ -591,4 +591,77 @@ const formatDateTime = (dateTime) => {
   margin-top: 20px;
   text-align: right;
 }
+
+/* 移动端响应式 */
+@media (max-width: 768px) {
+  .scheduled-tasks-container {
+    padding: 8px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .header-right {
+    width: 100%;
+  }
+
+  .header-right .el-button {
+    width: 100%;
+  }
+
+  .stats-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 12px;
+  }
+
+  .stat-number {
+    font-size: 20px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+  }
+
+  .filter-card :deep(.el-row) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .filter-card :deep(.el-col) {
+    max-width: 100%;
+    margin-bottom: 12px;
+  }
+
+  .filter-card :deep(.el-input),
+  .filter-card :deep(.el-select) {
+    width: 100%;
+  }
+
+  .filter-card :deep(.el-button) {
+    width: 100%;
+    margin-left: 0;
+    margin-bottom: 8px;
+  }
+
+  .pagination-container {
+    text-align: center;
+  }
+
+  .pagination-container :deep(.el-pagination) {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .pagination-container :deep(.el-pagination__sizes),
+  .pagination-container :deep(.el-pagination__jump) {
+    margin-top: 8px;
+  }
+}
 </style>

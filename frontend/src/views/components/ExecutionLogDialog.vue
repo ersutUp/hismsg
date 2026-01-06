@@ -2,7 +2,7 @@
   <el-dialog
     v-model="visible"
     title="执行记录"
-    width="900px"
+    :width="isMobile ? '95%' : '900px'"
     :before-close="handleClose"
   >
     <div v-loading="loading">
@@ -108,6 +108,11 @@ import api from '@/utils/request'
 const props = defineProps({
   modelValue: Boolean,
   taskId: [Number, String]
+})
+
+// 检测是否为移动端
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -217,7 +222,7 @@ const handleClose = () => {
 .stat-card {
   flex: 1;
   background: #f8f9fa;
-  padding: 15px;
+  padding: 4px !important;;
   border-radius: 8px;
   text-align: center;
 }
@@ -276,5 +281,72 @@ const handleClose = () => {
 .pagination-container {
   margin-top: 20px;
   text-align: right;
+}
+
+/* 移动端响应式 - scoped 样式 */
+@media (max-width: 768px) {
+  .stats-row {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .stat-card {
+    flex: 0 0 calc(50% - 5px);
+    padding: 10px;
+  }
+
+  .stat-number {
+    font-size: 18px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+  }
+
+  .pagination-container {
+    text-align: center;
+  }
+
+  .pagination-container :deep(.el-pagination) {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .pagination-container :deep(.el-pagination__sizes),
+  .pagination-container :deep(.el-pagination__jump) {
+    margin-top: 8px;
+  }
+
+  :deep(.el-table) {
+    font-size: 12px;
+  }
+
+  :deep(.el-table__cell) {
+    padding: 8px 0;
+  }
+}
+</style>
+
+<!-- 移动端弹窗样式 - 不能 scoped，因为弹窗是 teleport 到 body 的 -->
+<style lang="scss">
+@media (max-width: 768px) {
+  .el-dialog {
+    max-height: 90vh;
+    margin: 0 !important;
+    display: flex;
+    flex-direction: column;
+
+    .el-dialog__body {
+      max-height: calc(90vh - 120px);
+      overflow-y: auto;
+      padding: 4px !important;;
+    }
+  }
+
+  .el-overlay-dialog {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
 }
 </style>

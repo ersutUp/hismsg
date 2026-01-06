@@ -2,11 +2,11 @@
   <el-dialog
     v-model="visible"
     title="任务详情"
-    width="700px"
+    :width="isMobile ? '95%' : '700px'"
     :before-close="handleClose"
   >
     <div v-loading="loading">
-      <el-descriptions v-if="task" :column="2" border>
+      <el-descriptions v-if="task" :column="isMobile ? 1 : 2" border>
         <el-descriptions-item label="任务名称" :span="2">
           {{ task.taskName }}
         </el-descriptions-item>
@@ -118,6 +118,11 @@ import api from '@/utils/request'
 const props = defineProps({
   modelValue: Boolean,
   taskId: [Number, String]
+})
+
+// 检测是否为移动端
+const isMobile = computed(() => {
+  return window.innerWidth <= 768
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -289,5 +294,51 @@ code {
   padding: 2px 6px;
   border-radius: 3px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* 移动端响应式 - scoped 样式 */
+@media (max-width: 768px) {
+  .stats-card :deep(.el-row) {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .stats-card :deep(.el-col) {
+    flex: 0 0 50%;
+    max-width: 50%;
+    margin-bottom: 12px;
+  }
+
+  .stat-number {
+    font-size: 18px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+  }
+}
+</style>
+
+<!-- 移动端弹窗样式 - 不能 scoped，因为弹窗是 teleport 到 body 的 -->
+<style lang="scss">
+@media (max-width: 768px) {
+  .el-dialog {
+    max-height: 90vh;
+    margin: 0 !important;
+    display: flex;
+    flex-direction: column;
+
+    .el-dialog__body {
+      max-height: calc(90vh - 120px);
+      overflow-y: auto;
+      padding: 4px !important;
+    }
+  }
+
+  .el-overlay-dialog {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
 }
 </style>
