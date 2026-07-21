@@ -12,8 +12,10 @@ import xyz.ersut.message.dto.Result;
 import xyz.ersut.message.service.MessageForwardService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 消息推送API控制器（兼容Bark格式）
@@ -82,13 +84,14 @@ public class MessagePushApiController {
      * @param requestBody 请求体
      * @return 推送结果
      */
-    @Operation(summary = "Bark兼容格式推送消息（POST）", description = "通过POST请求推送消息，支持更多参数")
+    @Operation(summary = "Bark兼容格式推送消息（POST）", description = "通过POST请求推送消息，支持更多参数；tags 可从请求体或请求头获取")
     @PostMapping("/{userKey}")
     public Result<Map<String, Object>> pushMessagePost(@Parameter(description = "用户编号") @PathVariable String userKey,
-                                                      @RequestBody(required = false) Map<String, Object> requestBody) {
+                                                      @RequestBody(required = false) Map<String, Object> requestBody,
+                                                      HttpServletRequest request) {
         try {
-            // 构建推送请求
-            MessagePushRequest pushRequest = buildPushRequestFromPost(userKey, requestBody);
+            // 构建推送请求（tags 优先取请求体，其次取请求头）
+            MessagePushRequest pushRequest = buildPushRequestFromPost(userKey, requestBody, request);
             
             // 执行推送
             Long messageId = messageForwardService.pushMessage(pushRequest);
@@ -109,16 +112,21 @@ public class MessagePushApiController {
      * 通用推送接口（支持JSON格式）
      * 
      * @param pushRequest 推送请求
+     * @param request HTTP请求（用于从请求头读取 tags）
      * @return 推送结果
      */
-    @Operation(summary = "通用推送接口", description = "支持JSON格式的通用消息推送接口")
+    @Operation(summary = "通用推送接口", description = "支持JSON格式的通用消息推送接口；tags 可从请求体或请求头获取")
     @PostMapping("/send")
-    public Result<Map<String, Object>> sendMessage(@RequestBody MessagePushRequest pushRequest) {
+    public Result<Map<String, Object>> sendMessage(@RequestBody MessagePushRequest pushRequest,
+                                                   HttpServletRequest request) {
         try {
             // 参数验证
             if (StrUtil.isBlank(pushRequest.getUserKey())) {
                 return Result.error("用户密钥不能全部为空");
             }
+
+            // 请求体未传 tags 时，从请求头补充
+            applyTagsFromHeaderIfAbsent(pushRequest, request);
             
             // 执行推送
             Long messageId = messageForwardService.pushMessage(pushRequest);
@@ -222,10 +230,12 @@ public class MessagePushApiController {
      *
      * @param userKey 用户密钥
      * @param requestBody 请求体
+     * @param request HTTP请求（用于从请求头读取 tags）
      * @return 推送请求对象
      */
     @SuppressWarnings("unchecked")
-    private MessagePushRequest buildPushRequestFromPost(String userKey, Map<String, Object> requestBody) {
+    private MessagePushRequest buildPushRequestFromPost(String userKey, Map<String, Object> requestBody,
+                                                        HttpServletRequest request) {
         MessagePushRequest pushRequest = new MessagePushRequest();
         pushRequest.setUserKey(userKey);
         
@@ -252,16 +262,53 @@ public class MessagePushApiController {
             pushRequest.setMessageType("notification");
         }
         
-        // 设置标签
+        // 设置标签：优先使用请求体，其次使用请求头
         Object tagsObj = requestBody.get("tags");
         if (tagsObj instanceof List) {
             pushRequest.setTags((List<String>) tagsObj);
+        } else if (tagsObj instanceof String tagsStr) {
+            // 兼容请求体中以逗号分隔字符串传递 tags
+            pushRequest.setTags(parseTags(tagsStr));
         }
+        applyTagsFromHeaderIfAbsent(pushRequest, request);
         
         // 设置来源
 //        pushRequest.setSource("bark-api");
         
         return pushRequest;
+    }
+
+    /**
+     * 当推送请求尚未设置 tags 时，尝试从请求头读取
+     * 请求头名：tags，多个标签使用英文逗号分隔，例如：urgent,system
+     *
+     * @param pushRequest 推送请求
+     * @param request HTTP请求
+     */
+    private void applyTagsFromHeaderIfAbsent(MessagePushRequest pushRequest, HttpServletRequest request) {
+        if (pushRequest.getTags() != null && !pushRequest.getTags().isEmpty()) {
+            return;
+        }
+        List<String> headerTags = parseTags(request.getHeader("tags"));
+        if (!headerTags.isEmpty()) {
+            pushRequest.setTags(headerTags);
+        }
+    }
+
+    /**
+     * 解析标签字符串（英文逗号分隔）
+     *
+     * @param tagsStr 标签字符串，例如：urgent,system
+     * @return 标签列表
+     */
+    private List<String> parseTags(String tagsStr) {
+        if (StrUtil.isBlank(tagsStr)) {
+            return List.of();
+        }
+        return Arrays.stream(tagsStr.split(","))
+                .map(String::trim)
+                .filter(StrUtil::isNotBlank)
+                .collect(Collectors.toList());
     }
 
     /**

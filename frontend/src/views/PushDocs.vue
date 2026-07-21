@@ -179,6 +179,21 @@
           <el-table-column prop="description" label="说明" />
           <el-table-column prop="example" label="示例值" width="150" />
         </el-table>
+
+        <h4>请求头参数</h4>
+        <el-table :data="postHeaderParams" class="params-table">
+          <el-table-column prop="name" label="参数名" width="120" />
+          <el-table-column prop="type" label="类型" width="100" />
+          <el-table-column prop="required" label="必填" width="80">
+            <template #default="{ row }">
+              <el-tag :type="row.required ? 'danger' : 'info'" size="small">
+                {{ row.required ? '是' : '否' }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="description" label="说明" />
+          <el-table-column prop="example" label="示例值" width="150" />
+        </el-table>
         
         <h4>cURL 示例</h4>
         <div class="curl-examples">
@@ -396,7 +411,12 @@ const postParams = ref([
   { name: 'level', type: 'string', required: false, description: '消息级别', example: 'active' },
   { name: 'category', type: 'string', required: false, description: '消息类型', example: 'notification' },
   { name: 'group', type: 'string', required: false, description: '消息分组', example: 'work' },
-  { name: 'tags', type: 'array', required: false, description: '消息标签数组', example: '["urgent", "system"]' }
+  { name: 'tags', type: 'array', required: false, description: '消息标签数组（优先于请求头）', example: '["urgent", "system"]' }
+])
+
+// POST请求头参数
+const postHeaderParams = ref([
+  { name: 'tags', type: 'string', required: false, description: '消息标签，多个用英文逗号分隔；请求体未传 tags 时生效', example: 'urgent,system' }
 ])
 
 // POST请求cURL示例
@@ -422,6 +442,17 @@ const postCurlExamples = computed(() => [
     "url": "https://example.com/status",
     "level": "active",
     "category": "system"
+  }'`
+  },
+  {
+    title: '通过请求头传递 tags',
+    rows: 8,
+    command: `curl -X POST "${baseUrl}/api/message/push/${userKey.value}" \\
+  -H "Content-Type: application/json" \\
+  -H "tags: urgent,system" \\
+  -d '{
+    "title": "系统通知",
+    "body": "服务器维护完成"
   }'`
   },
   {
